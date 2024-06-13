@@ -1,0 +1,77 @@
+name: Deployment To Production
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    tags:
+      - v*
+    paths:
+      - force-app/main/default/**
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  Deploy-To-Production:
+    runs-on: ubuntu-latest
+    environment: PRODUCTION
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    steps:
+      # Checkout the code in the pull request
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - name: 'Install Prerequisites'
+        uses: joe-x-earley/AutoCommitTest/installRequirements@main
+
+      - name: 'Authenticate with Production'
+        uses: joe-x-earley/AutoCommitTest/authenticate@main
+        with:
+          certificate_path: assets/server.key.enc
+          certificate_key: ${{ secrets.CERTIFICATE_KEY }}
+          certificate_iv: ${{ secrets.CERTIFICATE_IV }}
+          app_client_id: ${{ secrets.APP_CONSUMER_KEY }}
+          username: ${{ secrets.USERNAME }}
+          org_type: 'production'
+
+      - name: 'Validate the Package in Production Org'
+        id: validatePackage
+        uses: joe-x-earley/AutoCommitTest/validate@main
+        with:
+          package_path: manifest/package.xml
+          test_level: 'RunLocalTests'
+          org_type: 'production'
+
+      - name: 'Deploy the Package to the Production Org'
+        uses: joe-x-earley/AutoCommitTest/quickDeployment@main
+        if: ${{ steps.validatePackage.outputs.job_id != '0' }}
+        with:
+          job_id: ${{ steps.validatePackage.outputs.job_id }}
+
+  Create-Release:
+    needs: [Deploy-To-Production]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    steps:
+      # Checkout the code in the pull request
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - name: Create Release with Notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: context.ref,
+              name: `Release ${context.ref}`,
+              draft: false,
+              prerelease: false,
+              generate_release_notes: true
+            })
