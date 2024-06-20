@@ -50,28 +50,4 @@ jobs:
         with:
           job_id: ${{ steps.validatePackage.outputs.job_id }}
 
-  Create-Release:
-    needs: [Deploy-To-Production]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
-    steps:
-      # Checkout the code in the pull request
-      - name: 'Checkout source code'
-        uses: actions/checkout@v4
-
-      - name: Create Release with Notes
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: context.ref,
-              name: `Release ${context.ref}`,
-              draft: false,
-              prerelease: false,
-              generate_release_notes: true
-            })
+  
