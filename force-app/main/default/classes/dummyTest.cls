@@ -27,4 +27,9 @@ private class dummyTest {
         // TO DO: implement unit test
         Assert.isTrue(true);
     }
+    @isTest
+    static void myUnitTest2() {
+        // TO DO: implement unit test
+        Assert.isTrue(true);
+    }
 }
