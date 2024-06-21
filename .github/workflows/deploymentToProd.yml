@@ -1,53 +1,60 @@
-name: Deployment To Production
-
-# Controls when the workflow will run
-# Definition when the workflow should run
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - force-app/main/default/**
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  Deploy-To-Production:
-    runs-on: ubuntu-latest
-    environment: PRODUCTION
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
-    steps:
-      # Checkout the code in the pull request
-      - name: 'Checkout source code'
-        uses: actions/checkout@v4
-
-      - name: 'Install Prerequisites'
-        uses: joe-x-earley/AutoCommitTest/installRequirements@main
-
-      - name: 'Authenticate with Production'
-        uses: joe-x-earley/AutoCommitTest/authenticate@main
-        with:
-          certificate_path: assets/server.key.enc
-          certificate_key: ${{ secrets.CERTIFICATE_KEY }}
-          certificate_iv: ${{ secrets.CERTIFICATE_IV }}
-          app_client_id: ${{ secrets.APP_CONSUMER_KEY }}
-          username: ${{ secrets.USERNAME }}
-          org_type: 'production'
-
-      - name: 'Validate the Package in Production Org'
-        id: validatePackage
-        uses: joe-x-earley/AutoCommitTest/validate@main
-        with:
-          package_path: manifest/package.xml
-          test_level: 'RunLocalTests'
-          org_type: 'production'
-
-      - name: 'Deploy the Package to the Production Org'
-        uses: joe-x-earley/AutoCommitTest/quickDeployment@main
-        if: ${{ steps.validatePackage.outputs.job_id != '0' }}
-        with:
-          job_id: ${{ steps.validatePackage.outputs.job_id }}
-
+name: Deployment To Production  
   
+# Controls when the workflow will run  
+# Definition of when the workflow should run  
+on:  
+  push:  
+    branches:  
+      # Trigger the workflow when there is a push to the 'main' branch  
+      - main  
+    paths:  
+      # Only trigger if changes are made within the 'force-app/main/default/' directory  
+      - force-app/main/default/**  
+  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel  
+jobs:  
+  Deploy-To-Production:  
+    runs-on: ubuntu-latest  
+    environment: PRODUCTION  
+    permissions:  
+      # Permissions required for the job  
+      contents: write  
+      pull-requests: write  
+      repository-projects: write  
+  
+    steps:  
+      # Step 1: Checkout the code from the repository  
+      - name: 'Checkout source code'  
+        uses: actions/checkout@v4  
+  
+      # Step 2: Install necessary prerequisites  
+      - name: 'Install Prerequisites'  
+        uses: joe-x-earley/AutoCommitTest/installRequirements@main  
+  
+      # Step 3: Authenticate with the Production environment  
+      - name: 'Authenticate with Production'  
+        uses: joe-x-earley/AutoCommitTest/authenticate@main  
+        with:  
+          certificate_path: assets/server.key.enc  
+          certificate_key: ${{ secrets.CERTIFICATE_KEY }}  
+          certificate_iv: ${{ secrets.CERTIFICATE_IV }}  
+          app_client_id: ${{ secrets.APP_CONSUMER_KEY }}  
+          username: ${{ secrets.USERNAME }}  
+          org_type: 'production'  
+  
+      # Step 4: Validate the package in the Production Org  
+      - name: 'Validate the Package in Production Org'  
+        id: validatePackage  
+        uses: joe-x-earley/AutoCommitTest/validate@main  
+        with:  
+          package_path: manifest/package.xml  
+          test_level: 'RunLocalTests'  
+          org_type: 'production'  
+  
+      # Step 5: Deploy the package to the Production Org  
+      # This step runs only if the validation step was successful (i.e., job_id is not '0')  
+      - name: 'Deploy the Package to the Production Org'  
+        uses: joe-x-earley/AutoCommitTest/quickDeployment@main  
+        if: ${{ steps.validatePackage.outputs.job_id != '0' }}  
+        with:  
+          job_id: ${{ steps.validatePackage.outputs.job_id }}  

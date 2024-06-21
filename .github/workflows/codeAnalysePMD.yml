@@ -1,20 +1,30 @@
-name: Code Analyse with PMD
-on:
-    push:
-      branches:
-        - Feature*
-      paths:
-        - force-app/main/default/**
-
-jobs:
-  apex:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Setup PMD
-      uses: legetz/setup-pmd@7.1.0
-    - name: APEX full scan
-      run: pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./pmd-rules.xml -f text    
+name: Code Analyse with PMD  
+  
+on:  
+  # Trigger the workflow on push events to branches matching the pattern 'Feature/**'  
+  push:  
+    branches:  
+      # Match branches like 'Feature/001', 'Feature/xyz', etc.  
+      - Feature/**  
+    paths:  
+      # Only trigger if changes are made within the 'force-app/main/default/' directory  
+      - force-app/main/default/**  
+  
+jobs:  
+  apex:  
+    runs-on: ubuntu-latest  
+  
+    steps:  
+    # Step 1: Checkout the code from the repository  
+    - name: Checkout code  
+      uses: actions/checkout@v4  
+      with:  
+        fetch-depth: 0  # Fetch all history for all branches and tags  
+  
+    # Step 2: Setup PMD (a source code analyzer) using a predefined action  
+    - name: Setup PMD  
+      uses: legetz/setup-pmd@7.1.0  
+  
+    # Step 3: Run PMD analysis on Apex classes  
+    - name: APEX full scan  
+      run: pmd check --dir ./force-app/main/default/classes/*.cls --rulesets ./pmd-rules.xml -f text  # Scan all '.cls' files in the specified directory using the rules defined in 'pmd-rules.xml'  
