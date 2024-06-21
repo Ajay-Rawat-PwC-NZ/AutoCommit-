@@ -1,4 +1,4 @@
-name: scan-code
+name: Code Analyse with PMD
 on:
     push:
       branches:

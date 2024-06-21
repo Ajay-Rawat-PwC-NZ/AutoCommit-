@@ -1,4 +1,4 @@
-name: Deployment To Production
+name: Validate Pull Request
 
 # Controls when the workflow will run
 # Definition when the workflow should run
