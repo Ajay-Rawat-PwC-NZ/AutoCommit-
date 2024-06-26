@@ -23,7 +23,7 @@
 private class DummyTest {  
   
     @isTest  
-    static void myUnitTest() {  
+    static void myUnitTest2() {  
         // TO DO: implement unit test  
         Assert.isTrue(true, 'This is a placeholder assertion for myUnitTest');  
     }  
