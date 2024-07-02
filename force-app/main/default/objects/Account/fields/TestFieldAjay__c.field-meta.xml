@@ -3,7 +3,7 @@
     <fullName>TestFieldAjay__c</fullName>
     <externalId>false</externalId>
     <label>TestFieldAjay</label>
-    <length>233</length>
+    <length>200</length>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <type>Text</type>
